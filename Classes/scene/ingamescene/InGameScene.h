@@ -6,6 +6,7 @@
 #include "layer/BlockLayer.h"
 #include "layer/HUDUILayer.h"
 
+
 class InGameScene : public cocos2d::Layer
 {
 public:
@@ -20,6 +21,10 @@ public:
 
 	// implement the "static create()" method manually
 	CREATE_FUNC(InGameScene);
+
+public:
+	const static unsigned int LAYER_BLOCK = 0;
+	const static unsigned int LAYER_HUDUI = 1;
 
 private:
 	HUDUILayer*		_hudUILayer;

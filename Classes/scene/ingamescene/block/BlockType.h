@@ -5,6 +5,8 @@
 
 enum class BlockType
 {
+	EMPTY = -1,
+
 	NONE = 0,
 
 	/** BLOCKS */

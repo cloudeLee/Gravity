@@ -1,45 +1,58 @@
 
+
+#include <cstddef>
+
 #include "TouchHandler.h"
 #include "LayoutManager.h"
 #include "BlockManager.h"
 #include "BlockMover.h"
 #include "board/Board.h"
 #include "block/FixedBlock.h"
+#include "InGameScene.h"
+
+
+void TouchHandler::init()
+{
+
+}
+
 
 void TouchHandler::touchBegan(const Point& location)
 {
-	_oldIndex = LayoutManager::getInstance()->getIndexAt(location);
-	CCLOG("%f %f", _oldIndex.x, _oldIndex.y);
+	// get coord 
+	Vec2 worldPos = location - _scrolledDistance;
+	_oldIndex = LayoutManager::getInstance()->getIndexAt(worldPos);
 
-	size_t rowCount = Board::getInstance()->getRowCount();
-	size_t colCount = Board::getInstance()->getColCount();
-
-	if ((_oldIndex.x < 0 && _oldIndex.x >= rowCount) ||
-		(_oldIndex.y < 0 && _oldIndex.y >= colCount))
-	{
-		_touched = false;
-		return;
-	}
-
-	_moved = false;
+	_endedCheckRequired = true;
 	_touched = true;
-	_oldLocation = location;
-
-	_canMove = LayoutManager::getInstance()->getDefaultBlockSize() * 0.5;
 
 	Block* block = Board::getInstance()->getBlockAt(
 		static_cast<int>(_oldIndex.x),
 		static_cast<int>(_oldIndex.y));
 
+	if (block == nullptr)
+	{
+		_touchedBlock = nullptr;
+		return;
+	}
+
 	_touchedBlock = static_cast<FixedBlock*>(block);
 }
 
-void TouchHandler::touchMoved(const Point& location)
+void TouchHandler::touchMoved(Touch* touch)
 {
+	// when scrolling the screen not block, move the board
 	if (!_touched || _touchedBlock == nullptr)
+	{
+		moveBoardLayer(touch->getPreviousLocation(), touch->getLocation());
+		_endedCheckRequired = false;
 		return;
-			
-	Point newPoint = LayoutManager::getInstance()->getIndexAt(location);
+	}
+
+	Point newPoint = LayoutManager::getInstance()->getIndexAt(touch->getLocation() - _scrolledDistance);
+	if (Board::getInstance()->getTypeAt(newPoint) != BlockType::NONE)
+		return;
+
 	if (_oldIndex != newPoint)
 	{
 		Point dest = LayoutManager::getInstance()->getCoordAt(newPoint);
@@ -48,7 +61,7 @@ void TouchHandler::touchMoved(const Point& location)
 		Board::getInstance()->swap(_oldIndex, newPoint);
 		_oldIndex = newPoint;
 
-		_moved = true;
+		_endedCheckRequired = false;
 	}
 	else
 	{
@@ -58,38 +71,47 @@ void TouchHandler::touchMoved(const Point& location)
 
 void TouchHandler::touchEnded(const Point& location)
 {
-	if (_moved)
+	if (!_endedCheckRequired)
 	{
 		return;
 	}
 
-	Point newIndex = LayoutManager::getInstance()->getIndexAt(location);
-	if (_oldIndex == newIndex)
+	Vec2 worldPos = location - _scrolledDistance;
+	Point newIndex = LayoutManager::getInstance()->getIndexAt(worldPos);
+	BlockType type = Board::getInstance()->getTypeAt(newIndex);
+	switch (type)
 	{
-		BlockType type = Board::getInstance()->getTypeAt(newIndex);
-		switch (type)
-		{
-		case BlockType::HELPER_ARROW_UP:
-		case BlockType::HELPER_ARROW_RIGHT:
-		case BlockType::HELPER_ARROW_DOWN:
-		case BlockType::HELPER_ARROW_LEFT:
+	case BlockType::HELPER_ARROW_UP:
+	case BlockType::HELPER_ARROW_RIGHT:
+	case BlockType::HELPER_ARROW_DOWN:
+	case BlockType::HELPER_ARROW_LEFT:
 
-			// rotate the button
-			BlockManager::getInstance()->getBlockMover()->rotateBy(_touchedBlock);
+		// rotate the button
+		BlockManager::getInstance()->getBlockMover()->rotateBy(_touchedBlock);
 
-			// change the value on the board
-			if (type == BlockType::HELPER_ARROW_LEFT)
-				type = BlockType::HELPER_ARROW_UP;
-			else
-				type = static_cast<BlockType>(static_cast<int>(type)+1);
-			Board::getInstance()->setTypeAt(newIndex, type);
+		// change the value on the board
+		if (type == BlockType::HELPER_ARROW_LEFT)
+			type = BlockType::HELPER_ARROW_UP;
+		else
+			type = static_cast<BlockType>(static_cast<int>(type)+1);
+		Board::getInstance()->setTypeAt(newIndex, type);
 
-			break;
-		}
+		break;
 	}
-	else
-	{
-	}
+	
 
 	_touched = false;
+	_touchedBlock = nullptr;
+}
+
+void TouchHandler::moveBoardLayer(const Vec2& pre, const Vec2& cur)
+{
+	Vec2 diff = cur - pre;
+	_scrolledDistance += diff;
+	
+	Node* scene = Director::getInstance()->getRunningScene();
+	Node* layer = scene->getChildByTag(InGameScene::LAYER_BLOCK, true);
+
+	Vec2 newPos = layer->getPosition() + diff;
+	layer->setPosition(newPos);
 }

@@ -30,13 +30,12 @@ bool InGameScene::init()
 	
 	// Initialize the layers
 	_blockLayer = BlockLayer::create();
+	_blockLayer->setTag(LAYER_BLOCK);
 	this->addChild(_blockLayer);
 
 	_hudUILayer = HUDUILayer::create();
+	_hudUILayer->setTag(LAYER_HUDUI);
 	this->addChild(_hudUILayer);
-
-	Size visibleSize = Director::getInstance()->getVisibleSize();
-	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
 	return true;
 }

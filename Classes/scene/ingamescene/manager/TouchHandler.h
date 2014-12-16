@@ -12,27 +12,26 @@ class TouchHandler
 {
 
 public:
+	void init();
+
 	void touchBegan(const Point& location);
 
-	void touchMoved(const Point& location);
+	void touchMoved(Touch* touch);
 
-	/**
-	* when the touch is ended to move.
-	* 
-	* @param location touched position(Real coord)
-	*/
 	void touchEnded(const Point& location);
 
 private:
-	FixedBlock*	_touchedBlock;
+	void moveBoardLayer(const Vec2& pre, const Vec2& cur);
+
+private:
+	FixedBlock*	_touchedBlock = nullptr;
 
 	Point	_oldIndex;
-	Point	_oldLocation;
-
-	int		_canMove;
 
 	bool	_touched;
-	bool	_moved;
+	bool	_endedCheckRequired;
+
+	Vec2	_scrolledDistance;	// distance that have been scrolled
 
 };
 

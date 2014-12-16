@@ -49,12 +49,7 @@ void BlockLayer::update(float dt)
 
 bool BlockLayer::onTouchBegan(Touch *touch, Event *event)
 {
-	Point location;
-	location = touch->getLocation();
-
-	_touchHandler.touchBegan(location);
-
-	CCLOG("[MainGameLayer Touch Began] location x=%f, y=%f", location.x, location.y);
+	_touchHandler.touchBegan(touch->getLocation());
 
 	return true;
 }
@@ -62,22 +57,12 @@ bool BlockLayer::onTouchBegan(Touch *touch, Event *event)
 
 void BlockLayer::onTouchMoved(Touch* touch, Event* event)
 {
-	Point location;
-	location = touch->getLocation();
-
-	_touchHandler.touchMoved(location);
-
-	CCLOG("[MainGameLayer Touch Moved] location x=%f, y=%f", location.x, location.y);
+	_touchHandler.touchMoved(touch);
 }
 
 void BlockLayer::onTouchEnded(Touch* touch, Event* event)
 {
-	Point location;
-	location = touch->getLocation();
-
-	_touchHandler.touchEnded(location);
-
-	CCLOG("[MainGameLayer Touch Moved] location x=%f, y=%f", location.x, location.y);
+	_touchHandler.touchEnded(touch->getLocation());
 }
 
 

@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <assert.h>
+#include <cstddef>
 
 #include "BoardItem.h"
 #include "utils/Singleton.h"
@@ -33,11 +34,12 @@ public:
 	/**
 	@brief retrieve the block's type at index on the board
 	@param inIndex
-	@return if there's no item, return the std::nullptr_t;
+
 	*/
 	inline BlockType getTypeAt(size_t inIndex)
 	{
-		assert((_board.size() >= inIndex + 1), "index is over the size");
+		if (inIndex >= _board.size() || inIndex < 0)
+			return BlockType::EMPTY;
 
 		return _board[inIndex].getType();
 	}
@@ -64,9 +66,10 @@ public:
 	}
 
 	inline Block* getBlockAt(size_t inIndex)
-	{
-		assert((_board.size() >= inIndex + 1), "index is over the size");
-		
+	{		
+		if (inIndex >= _board.size() || inIndex < 0)
+			return nullptr;
+
 		return _board[inIndex].getBlock();
 	}
 
@@ -83,7 +86,7 @@ public:
 	*/
 	inline void setItemAt(size_t inIndex, const BlockType& inType, Block* inBlock = nullptr)
 	{
-		if (_board.size() < inIndex)
+		if (_board.size() < inIndex || inIndex < 0)
 		{
 			assert("board.size() < index");
 			return;
