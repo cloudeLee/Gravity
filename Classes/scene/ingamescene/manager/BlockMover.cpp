@@ -4,10 +4,13 @@
 #include "board/Board.h"
 #include "block/GravityDirection.h"
 #include "LayoutManager.h"
+#include "NextChecker.h"
 
 const int	CHECK_NEXT_REQUIRED = -1;
 const float MOVE_SPEED			= 0.2;
 const float ROTATE_DURATION		= 0.2;
+
+
 
 void BlockMover::checkMovable(NormalBlock* inBlock)
 {
@@ -15,29 +18,30 @@ void BlockMover::checkMovable(NormalBlock* inBlock)
 		return;
 
 	//check next position of block by checking the board
-	Point next = getNextPosition(inBlock);
+	CheckResult result = getNextPosition(inBlock);
+	
 
 	//if block cannot be moved
 	Point current = inBlock->getBoardPosition();
-	if ( current == next)
+	if (current == result.next)
 	{
 		inBlock->setChecked(true);
 		return;
 	}
 	
 	//if there's another block on next position, check the block to move
-	NormalBlock* nextBlock = static_cast<NormalBlock*>(Board::getInstance()->getBlockAt(next));
+	NormalBlock* nextBlock = static_cast<NormalBlock*>(Board::getInstance()->getBlockAt(result.next));
 	if (nextBlock != nullptr)
 	{
 		checkMovable(nextBlock);	//recursively
-		if (Board::getInstance()->getBlockAt(next) == nullptr)
+		if (Board::getInstance()->getBlockAt(result.next) == nullptr)
 		{
-			moveTo(inBlock, next);
+			moveTo(inBlock, result.next);
 		}
 	}
 	else
 	{
-		moveTo(inBlock, next);		//if not, move the block 
+		moveTo(inBlock, result.next);		//if not, move the block 
 	}
 
 	inBlock->setChecked(true);
@@ -61,6 +65,8 @@ void BlockMover::moveDone(Node* pSender, Point inNext)
 {
 	NormalBlock* block = static_cast<NormalBlock*>(pSender);
 
+
+
 	block->setIsMoving(false);
 
 // 	static int count = 0;
@@ -83,44 +89,26 @@ void BlockMover::rotateDone(Node* pSender)
 
 }
 
-
-const cocos2d::Point& BlockMover::getNextPosition(NormalBlock* inBlock)
+CheckResult BlockMover::getNextPosition(NormalBlock* inBlock)
 {
-	// retreive the next position only by checking the gravity direction of block
-	Point next = getNextByGravity(inBlock);
-	BlockType type = Board::getInstance()->getTypeAt(next);
-	switch (type)
-	{
-	case BlockType::NONE:
-	case BlockType::NORMAL:
-		return next;
-		
-	case BlockType::HELPER_ARROW_UP:
-	case BlockType::HELPER_BROKEN_UP:
-		return getNextByUpArrow(inBlock);
-				
-	case BlockType::HELPER_ARROW_DOWN:
-	case BlockType::HELPER_BROKEN_DOWN:
-		return getNextByDownArrow(inBlock);
+	cocos2d::Vec2 nextByGravity = getNextByGravity(inBlock);
+	BlockType type = Board::getInstance()->getTypeAt(nextByGravity);
 
-	case BlockType::HELPER_ARROW_LEFT:
-	case BlockType::HELPER_BROKEN_LEFT:
-		return getNextByLeftArrow(inBlock);
+	INextChecker* checker = NextPositionCheckerFactory::createChecker(type);
+	cocos2d::Vec2 next = checker->getNextPosition(inBlock);
+	next = (next.x == -1 && next.y == -1) ? nextByGravity : next;
 
-	case BlockType::HELPER_ARROW_RIGHT:
-	case BlockType::HELPER_BROKEN_RIGHT:
-		return getNextByRightArrow(inBlock);
+	delete checker;
+	checker = nullptr;
 
-	case BlockType::EDGE:
-		return inBlock->getBoardPosition();
-
-	default:
-		CCASSERT(false, "NOT DEFINED");
-		break;
-	}
+	CheckResult result;
+	result.next = next;
+	result.type = type;
+	
+	return result;
 }
 
-const cocos2d::Point& BlockMover::getNextByGravity(NormalBlock* inBlock)
+cocos2d::Point BlockMover::getNextByGravity(NormalBlock* inBlock)
 {
 	Point old = inBlock->getBoardPosition();
 	Point next = old;

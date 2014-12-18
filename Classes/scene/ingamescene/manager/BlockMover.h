@@ -12,11 +12,19 @@
 
 #include "cocos2d.h"
 #include "block/Block.h"
+#include "block/BlockType.h"
 
 USING_NS_CC;
 
 class Block;
 class NormalBlock;
+
+struct CheckResult
+{
+public:
+	Point next;
+	BlockType type;
+};
 
 class BlockMover
 {
@@ -36,14 +44,18 @@ public:
 	void changePosition(Block* block, Point pos);
 
 private:
-	const cocos2d::Point& getNextPosition(NormalBlock* inBlock);
-
+	
+	/**
+	* get next block's position
+	*/
+	CheckResult getNextPosition(NormalBlock* inBlock);
+	
 	const cocos2d::Point& getNextByUpArrow(NormalBlock* inBlock);
 	const cocos2d::Point& getNextByDownArrow(NormalBlock* inBlock);
 	const cocos2d::Point& getNextByLeftArrow(NormalBlock* inBlock);
 	const cocos2d::Point& getNextByRightArrow(NormalBlock* inBlock);
 
-	const cocos2d::Point& getNextByGravity(NormalBlock* inBlock);
+	cocos2d::Point getNextByGravity(NormalBlock* inBlock);
 
 private:
 	int _checkCount;
