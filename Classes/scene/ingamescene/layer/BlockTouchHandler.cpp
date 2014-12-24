@@ -1,30 +1,18 @@
 
-
-#include <cstddef>
-
-#include "TouchHandler.h"
-#include "LayoutManager.h"
-#include "BlockManager.h"
-#include "BlockMover.h"
-#include "board/Board.h"
+#include "BlockTouchHandler.h"
+#include "manager/LayoutManager.h"
+#include "block/Block.h"
 #include "block/FixedBlock.h"
-#include "InGameScene.h"
+#include "board/Board.h"
+#include "manager/TouchManager.h"
+#include "manager/BlockManager.h"
 
-
-void TouchHandler::init()
+void BlockTouchHandler::onTouchBeganBlockLayer(const Vec2& pos)
 {
+	_oldIndex = LayoutManager::getInstance()->getIndexAt(pos);
 
-}
-
-
-void TouchHandler::touchBegan(const Point& location)
-{
-	// get coord 
-	Vec2 worldPos = location - _scrolledDistance;
-	_oldIndex = LayoutManager::getInstance()->getIndexAt(worldPos);
-
-	_endedCheckRequired = true;
 	_touched = true;
+	_endedCheckRequired = true;
 
 	Block* block = Board::getInstance()->getBlockAt(
 		static_cast<int>(_oldIndex.x),
@@ -39,17 +27,21 @@ void TouchHandler::touchBegan(const Point& location)
 	_touchedBlock = static_cast<FixedBlock*>(block);
 }
 
-void TouchHandler::touchMoved(Touch* touch)
+void BlockTouchHandler::onTouchMovedBlockLayer(Touch* touch, Node* layer)
 {
-	// when scrolling the screen not block, move the board
+	// when scrolling the screen not picking the block, move the board
 	if (!_touched || _touchedBlock == nullptr)
 	{
-		moveBoardLayer(touch->getPreviousLocation(), touch->getLocation());
+		Vec2 diff = TouchManager::getInstance()->touchMoved(touch);
+		Vec2 newPos = layer->getPosition() + diff;
+		layer->setPosition(newPos);
+
 		_endedCheckRequired = false;
 		return;
 	}
 
-	Point newPoint = LayoutManager::getInstance()->getIndexAt(touch->getLocation() - _scrolledDistance);
+	Point newPoint = LayoutManager::getInstance()->getIndexAt(touch->getLocation() - TouchManager::getInstance()->getScrolledDistance());
+
 	if (Board::getInstance()->getTypeAt(newPoint) != BlockType::NONE)
 		return;
 
@@ -69,15 +61,14 @@ void TouchHandler::touchMoved(Touch* touch)
 	}
 }
 
-void TouchHandler::touchEnded(const Point& location)
+void BlockTouchHandler::onTouchEndedBlockLayer(const Vec2& pos)
 {
 	if (!_endedCheckRequired)
 	{
 		return;
 	}
 
-	Vec2 worldPos = location - _scrolledDistance;
-	Point newIndex = LayoutManager::getInstance()->getIndexAt(worldPos);
+	Point newIndex = LayoutManager::getInstance()->getIndexAt(pos);
 	BlockType type = Board::getInstance()->getTypeAt(newIndex);
 	switch (type)
 	{
@@ -94,24 +85,12 @@ void TouchHandler::touchEnded(const Point& location)
 			type = BlockType::HELPER_ARROW_UP;
 		else
 			type = static_cast<BlockType>(static_cast<int>(type)+1);
+
 		Board::getInstance()->setTypeAt(newIndex, type);
 
 		break;
 	}
-	
 
 	_touched = false;
 	_touchedBlock = nullptr;
-}
-
-void TouchHandler::moveBoardLayer(const Vec2& pre, const Vec2& cur)
-{
-	Vec2 diff = cur - pre;
-	_scrolledDistance += diff;
-	
-	Node* scene = Director::getInstance()->getRunningScene();
-	Node* layer = scene->getChildByTag(InGameScene::LAYER_BLOCK, true);
-
-	Vec2 newPos = layer->getPosition() + diff;
-	layer->setPosition(newPos);
 }

@@ -1,8 +1,8 @@
 #include "BlockLayer.h"
 #include "manager/LayoutManager.h"
 #include "manager/BlockManager.h"
-
-USING_NS_CC;
+#include "manager/TouchManager.h"
+#include "block/FixedBlock.h"
 
 
 // on "init" you need to initialize your instance
@@ -49,7 +49,10 @@ void BlockLayer::update(float dt)
 
 bool BlockLayer::onTouchBegan(Touch *touch, Event *event)
 {
-	_touchHandler.touchBegan(touch->getLocation());
+	// get the position in the world
+	Vec2 worldPos = TouchManager::getInstance()->touchBegan(touch->getLocation());
+	
+	_blockTouchHandler.onTouchBeganBlockLayer(worldPos);
 
 	return true;
 }
@@ -57,12 +60,14 @@ bool BlockLayer::onTouchBegan(Touch *touch, Event *event)
 
 void BlockLayer::onTouchMoved(Touch* touch, Event* event)
 {
-	_touchHandler.touchMoved(touch);
+	_blockTouchHandler.onTouchMovedBlockLayer(touch, this);
 }
 
 void BlockLayer::onTouchEnded(Touch* touch, Event* event)
 {
-	_touchHandler.touchEnded(touch->getLocation());
+	Vec2 worldPos = TouchManager::getInstance()->touchEnded(touch->getLocation());
+
+	_blockTouchHandler.onTouchEndedBlockLayer(worldPos);
 }
 
 

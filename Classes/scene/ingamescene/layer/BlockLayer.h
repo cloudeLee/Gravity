@@ -4,7 +4,7 @@
 #include "cocos2d.h"
 #include "board/Board.h"
 #include "manager/BlockPainter.h"
-#include "manager/TouchHandler.h"
+#include "BlockTouchHandler.h"
 
 USING_NS_CC;
 
@@ -28,8 +28,9 @@ public:
 	virtual void update(float dt);
 	
 private:
-	BlockPainter	_blockPainter;
-	TouchHandler	_touchHandler;
+	BlockPainter		_blockPainter;
+	BlockTouchHandler	_blockTouchHandler;
+
 	
 
 };
