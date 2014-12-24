@@ -37,6 +37,12 @@ bool InGameScene::init()
 	_hudUILayer->setTag(LAYER_HUDUI);
 	this->addChild(_hudUILayer);
 
+#if SEAFT_MAP_EDITOR
+	_mapEditorLayer = MapEditorLayer::create();
+	_mapEditorLayer->setTag(LAYER_MAP_EDITOR);
+	this->addChild(_mapEditorLayer);
+#endif
+
 	return true;
 }
 

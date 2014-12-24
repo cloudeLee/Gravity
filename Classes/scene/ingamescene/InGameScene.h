@@ -6,6 +6,10 @@
 #include "layer/BlockLayer.h"
 #include "layer/HUDUILayer.h"
 
+#ifdef SEAFT_MAP_EDITOR
+	#include "layer/MapEditorLayer.h"
+#endif
+
 
 class InGameScene : public cocos2d::Layer
 {
@@ -25,11 +29,15 @@ public:
 public:
 	const static unsigned int LAYER_BLOCK = 0;
 	const static unsigned int LAYER_HUDUI = 1;
+	const static unsigned int LAYER_MAP_EDITOR = 100;
 
 private:
 	HUDUILayer*		_hudUILayer;
 	BlockLayer*		_blockLayer;
 
+#ifdef SEAFT_MAP_EDITOR
+	MapEditorLayer* _mapEditorLayer;
+#endif
 };
 
 #endif // __IN_GAME_SCENE_H__
