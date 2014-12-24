@@ -11,6 +11,7 @@ class Button : public Sprite
 {
 public:
 	static Button* create(const std::string& path);
+	static Button* createWithSprite(Sprite* sprite);
 
 	std::function<void(Node*, Vec2)> onTouchBeganCallback;
 	std::function<void(Node*, Vec2)> onTouchMovedCallback;

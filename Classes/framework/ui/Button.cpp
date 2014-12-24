@@ -19,6 +19,25 @@ Button* Button::create(const std::string& path)
 	return nullptr;
 }
 
+
+Button* Button::createWithSprite(Sprite* sprite)
+{
+	Button* button = new Button();
+	if (button->initWithTexture(sprite->getTexture()))
+	{
+		button->autorelease();
+
+		//button->initOptions();
+
+		button->addEvents();
+		return button;
+	}
+
+	CC_SAFE_DELETE(button);
+	return nullptr;
+}
+
+
 void Button::addEvents()
 {
 	auto listener = cocos2d::EventListenerTouchOneByOne::create();
