@@ -49,6 +49,10 @@ private:
 	* get next block's position
 	*/
 	CheckResult getNextPosition(NormalBlock* inBlock);
+
+	bool checkNext(const BlockType& type);
+
+	void moveBlock(NormalBlock* block, Vec2 next);
 	
 	const cocos2d::Point& getNextByUpArrow(NormalBlock* inBlock);
 	const cocos2d::Point& getNextByDownArrow(NormalBlock* inBlock);

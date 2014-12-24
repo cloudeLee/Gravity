@@ -45,13 +45,16 @@ public:
 
 	void setGravityDirection(const GravityDirection& direction);
 
+	void stopCheckingStep(bool stop);
+
 private:
 	Block* createBlock(const BlockType& type, Sprite* sprite, int x, int y);
 	
 private:
-	//cocos2d::Vector<NormalBlock*> _blocks;
 	std::vector<NormalBlock*> _blocks;
 	BlockMover		_blockMover;
+
+	bool _stopStep;
 };
 
 #endif

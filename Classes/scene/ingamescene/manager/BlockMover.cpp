@@ -5,6 +5,7 @@
 #include "block/GravityDirection.h"
 #include "LayoutManager.h"
 #include "NextChecker.h"
+#include "manager/BlockManager.h"
 
 const int	CHECK_NEXT_REQUIRED = -1;
 const float MOVE_SPEED			= 0.2;
@@ -20,31 +21,52 @@ void BlockMover::checkMovable(NormalBlock* inBlock)
 	//check next position of block by checking the board
 	CheckResult result = getNextPosition(inBlock);
 	
+	if (!checkNext(result.type))
+		return;
 
-	//if block cannot be moved
-	Point current = inBlock->getBoardPosition();
-	if (current == result.next)
+	//if block cannot be moved, there's no need to check this block in this frame
+	if (inBlock->getBoardPosition() == result.next)
 	{
 		inBlock->setChecked(true);
 		return;
 	}
 	
-	//if there's another block on next position, check the block to move
-	NormalBlock* nextBlock = static_cast<NormalBlock*>(Board::getInstance()->getBlockAt(result.next));
+	moveBlock(inBlock, result.next);
+
+	inBlock->setChecked(true);
+}
+
+bool BlockMover::checkNext(const BlockType& type)
+{
+	switch (type)
+	{
+	case BlockType::EDGE:
+		BlockManager::getInstance()->stopCheckingStep(true);
+		return false;
+
+	default:
+		return true;
+	}
+}
+
+void BlockMover::moveBlock(NormalBlock* block, Vec2 next)
+{
+	//if there's another block on next position, check if it can move.
+	NormalBlock* nextBlock = static_cast<NormalBlock*>(Board::getInstance()->getBlockAt(next));
 	if (nextBlock != nullptr)
 	{
 		checkMovable(nextBlock);	//recursively
-		if (Board::getInstance()->getBlockAt(result.next) == nullptr)
+
+		// if next block was moved, then make the block move.
+		if (Board::getInstance()->getBlockAt(next) == nullptr)
 		{
-			moveTo(inBlock, result.next);
+			moveTo(block, next);
 		}
 	}
 	else
 	{
-		moveTo(inBlock, result.next);		//if not, move the block 
+		moveTo(block, next);		//if not, move the block 
 	}
-
-	inBlock->setChecked(true);
 }
 
 void BlockMover::moveTo(NormalBlock* inBlock, Point inNext)
@@ -64,9 +86,6 @@ void BlockMover::moveTo(NormalBlock* inBlock, Point inNext)
 void BlockMover::moveDone(Node* pSender, Point inNext)
 {
 	NormalBlock* block = static_cast<NormalBlock*>(pSender);
-
-
-
 	block->setIsMoving(false);
 
 // 	static int count = 0;

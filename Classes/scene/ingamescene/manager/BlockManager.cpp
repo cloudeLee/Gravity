@@ -11,6 +11,8 @@
 
 void BlockManager::init(BlockPainter* painter)
 {
+	_stopStep = false;
+
 	size_t rowCount = Board::getInstance()->getRowCount();
 	size_t colCount = Board::getInstance()->getColCount();
 
@@ -43,6 +45,9 @@ void BlockManager::init(BlockPainter* painter)
 
 void BlockManager::step()
 {
+	if (_stopStep)
+		return;
+
 	int size = _blocks.size();
 	int checked = 0;
 	for (int i = 0; i < size; ++i)
@@ -100,5 +105,10 @@ void BlockManager::turnGravityOn(bool on)
 	{
 		_blocks[i]->setIsMoving(!on);
 	}
+}
+
+void BlockManager::stopCheckingStep(bool stop)
+{
+	_stopStep = stop;
 }
 
