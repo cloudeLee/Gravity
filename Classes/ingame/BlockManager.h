@@ -62,8 +62,6 @@ private:
 #if SEAFT_MAP_EDITOR
 
 public:
-	std::vector<Block*> _allBlocks;
-
 	void clearAllBlocks();
 
 #endif

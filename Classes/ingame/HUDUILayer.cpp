@@ -18,15 +18,11 @@ void HUDUILayer::initButtons()
 	_btnPower->setPosition(Vec2(10, 10));
 	_btnPower->setAnchorPoint(Vec2(0, 0));
 	_btnPower->addTouchEventListener(CC_CALLBACK_2(HUDUILayer::onTouchEnded, this));
-		
 	addChild(_btnPower);
 
 	_gravityArrow2 = RotatingButton::create("res/arrow.png");
 	_gravityArrow2->setPosition(Vec2(200, 100));
-
 	_gravityArrow2->onChangedCallback = onChanged();
-
-
 	addChild(_gravityArrow2);
 }
 

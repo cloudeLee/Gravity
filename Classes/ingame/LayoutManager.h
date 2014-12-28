@@ -3,7 +3,7 @@
 #define __LAYOUT_MANAGER_H__
 
 #include "cocos2d.h"
-#include "utils/Singleton.h"
+#include "Singleton.h"
 
 USING_NS_CC;
 

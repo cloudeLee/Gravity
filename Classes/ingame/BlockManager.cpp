@@ -44,12 +44,7 @@ void BlockManager::initBlockAt(const BlockType& type, int x, int y)
 	if (newBlock)
 	{
 		newBlock->retain();
-		Board::getInstance()->setBlockAt(x, y, newBlock);
-
-#if SEAFT_MAP_EDITOR
-		_allBlocks.push_back(newBlock);
-#endif
-
+		Board::getInstance()->setBlockAt(x, y, newBlock);		
 	}
 }
 
@@ -126,7 +121,7 @@ void BlockManager::stopCheckingStep(bool stop)
 
 void BlockManager::clearAllBlocks()
 {
-	_allBlocks.clear();
+	_blocks.clear();
 	_blockPainter->disposeAll();	
 }
 
