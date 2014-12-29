@@ -4,6 +4,7 @@
 #include "LayoutManager.h"
 #include "TouchManager.h"
 #include "BlockManager.h"
+#include "FileIOManager.h"
 
 bool MapEditorLayer::init()
 {
@@ -67,7 +68,6 @@ void MapEditorLayer::onTouchEnded(Touch* touch, Event* event)
 void MapEditorLayer::setBlockAt(Touch* at)
 {
 	Vec2 coord = TouchManager::getInstance()->touchEnded(at->getLocation(), true);
-	CCLOG("%f %f", coord.x, coord.y);
 
 	// locate the block on edge when touching at out of the board, 
 	int row = Board::getInstance()->getRowCount();
@@ -80,6 +80,7 @@ void MapEditorLayer::setBlockAt(Touch* at)
 	if (_selectedButton != BlockType::EMPTY && _selectedButton != Board::getInstance()->getTypeAt(coord))
 	{
 		BlockManager::getInstance()->initBlockAt(_selectedButton, coord.x, coord.y);
+		Board::getInstance()->setTypeAt(coord, _selectedButton);
 	}
 }
 
@@ -93,11 +94,19 @@ void MapEditorLayer::setMapToolUI()
 
 	Rect rect = Director::getInstance()->getOpenGLView()->getVisibleRect();
 		
+	_edtStage = EditBox::create(Size(200, 160), Scale9Sprite::create("map_editor/editbox_288x160.png"));
+	_edtStage->setPosition(Vec2(550, rect.getMaxY() - 140));
+	_edtStage->setFontSize(25);
+	_edtStage->setFontColor(Color3B::BLACK);
+	_edtStage->setText("1");
+	_edtStage->setReturnType(EditBox::KeyboardReturnType::DONE);
+	addChild(_edtStage);
+
 	_edtRowCount = EditBox::create(Size(240, 160), Scale9Sprite::create("map_editor/editbox_288x160.png"));
 	_edtRowCount->setPosition(Vec2(1200, rect.getMaxY() - 140));
 	_edtRowCount->setFontSize(25);
 	_edtRowCount->setFontColor(Color3B::BLACK);
-	_edtRowCount->setText("5");
+	_edtRowCount->setText("10");
 	_edtRowCount->setReturnType(EditBox::KeyboardReturnType::DONE);
 	addChild(_edtRowCount);
 
@@ -105,7 +114,7 @@ void MapEditorLayer::setMapToolUI()
 	_edtColCount->setPosition(Vec2(1700, rect.getMaxY() - 140));
 	_edtColCount->setFontSize(25);
 	_edtColCount->setFontColor(Color3B::BLACK);
-	_edtColCount->setText("5");
+	_edtColCount->setText("10");
 	_edtColCount->setReturnType(EditBox::KeyboardReturnType::DONE);
 	addChild(_edtColCount);
 
@@ -167,6 +176,8 @@ void MapEditorLayer::setButtonTypes()
 {
 	_buttonTypes.push_back(BlockType::EDGE);
 	_buttonTypes.push_back(BlockType::NONE);
+	_buttonTypes.push_back(BlockType::NORMAL);
+	_buttonTypes.push_back(BlockType::HELPER_ARROW_RIGHT);
 }
 
 
@@ -209,9 +220,11 @@ void MapEditorLayer::onTouchButton(Ref *pSender, ui::Widget::TouchEventType type
 			break;
 
 		case MapButton::LOAD_BIN:
+			loadBin();
 			break;
 
 		case MapButton::SAVE:
+			save();
 			break;
 		}
 	}
@@ -232,3 +245,19 @@ void MapEditorLayer::createNewStage()
 	Board::getInstance()->createNewBoard(row, col);
 	BlockManager::getInstance()->init(nullptr);
 }
+
+void MapEditorLayer::loadBin()
+{
+	int stageId = atoi(_edtStage->getText());
+
+	FileIOManager::getInstance()->loadBin(stageId);
+}
+
+void MapEditorLayer::save()
+{
+	int stageId = atoi(_edtStage->getText());
+
+	FileIOManager::getInstance()->saveXML(stageId);
+	FileIOManager::getInstance()->saveBin(stageId);
+}
+

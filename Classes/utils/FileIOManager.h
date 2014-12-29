@@ -4,6 +4,7 @@
 
 #include "cocos2d.h"
 #include "Singleton.h"
+#include "BlockType.h"
 
 USING_NS_CC;
 
@@ -19,9 +20,14 @@ public:
 	void loadBin(int stageId);
 
 private:
+	void writeBoardItems(std::ofstream& stream);
+	std::vector<BlockType> readBoardItems(std::ifstream& stream, int row, int col);
 
 	void writeString(std::ofstream& stream, const std::string& str);
 	std::string readString(std::ifstream& stream);
+
+	void writeInt(std::ofstream& stream, int val);
+	int readInt(std::ifstream& stream);
 };
 
 #endif

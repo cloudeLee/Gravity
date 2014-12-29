@@ -32,6 +32,8 @@ public:
 	*/
 	void init(size_t inStageId);
 
+	void init(size_t stageId, size_t row, size_t col, std::vector<BlockType> boardItems);
+
 	/**
 	@brief retrieve the block's type at index on the board
 	@param inIndex

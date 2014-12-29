@@ -51,6 +51,26 @@ void Board::init(size_t inStageId)
 #endif
 }
 
+void Board::init(size_t stageId, size_t row, size_t col, std::vector<BlockType> boardItems)
+{
+	_board.clear();
+
+	_rowCount = row;
+	_colCount = col;
+	
+	for (int i = 0; i < _rowCount * _colCount; ++i) {
+		_board.push_back(BoardItem(BlockType::NONE));
+	}
+
+	for (int i = 0; i < row; ++i)
+	{
+		for (int j = 0; j < col; ++j)
+		{
+			setItemAt(i, j, boardItems[i*col + j]);
+		}
+	}
+}
+
 #if SEAFT_MAP_EDITOR
 
 void Board::createNewBoard(size_t row, size_t col)

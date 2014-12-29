@@ -43,20 +43,26 @@ private:
 	void setBlockAt(Touch* at);
 
 	void onButtonTouchEnded(Ref *pSender, ui::Widget::TouchEventType type);
+
 	void createNewStage();
+	void loadBin();
+	void save();
+
 
 private:
-	BlockPainter				_blockPainter;
+	BlockPainter					_blockPainter;
 
+	std::vector<BlockType>			_buttonTypes;
 	cocos2d::Vector<ui::Button*>	_buttons;
-	std::vector<BlockType>		_buttonTypes;
-
-	BlockType	_selectedButton;
+	
+	BlockType	_selectedButton;	
 
 	bool _isScrolling;
 
 
 	Sprite*			_background;
+
+	ui::EditBox*	_edtStage;
 	ui::EditBox*	_edtRowCount;
 	ui::EditBox*	_edtColCount;
 
